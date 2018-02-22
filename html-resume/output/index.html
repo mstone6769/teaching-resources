@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="testResults">
+  <head>
+    <meta charset="utf-8">
+    <title>Student Assessment Results</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/css/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/css/foundation.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.6/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.6/angular-aria.min.js"></script>
+    <script>
+      angular.module('testResults', ['ngAria'])
+        .controller('testResultsController', ['$scope', '$http', function ($scope, $http) {
+          $http.get('results.json')
+            .success(function(response) {$scope.results = response;});
+          $scope.filterTags = function(tags) {
+            var result = [];
+            angular.forEach(tags, function(tagName, quantity) {
+              if (quantity === 0) {
+                result.push({tagName: tagName, quantity: quantity});
+              }
+            });
+            return result;
+          };
+        }]);
+    </script>
+    <style>
+      .accordion-panel {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-top: 1px solid gainsboro;
+      }
+      .student-heading {
+        font-size: 1.5rem;
+      }
+      .section-heading {
+        font-size: 1.25rem;
+      }
+      .section-subheading {
+        font-size: 1rem;
+      }
+      
+      .tag-list {
+        margin-left: -1.375rem;
+        font-weight: bold;
+      }
+
+      .tag-summary > dt, .tag-summary > dd {
+        border-top: 1px solid gainsboro;
+        padding-bottom: 0.25rem;
+        padding-top: 0.25rem;
+        margin-bottom: 0;
+      }
+
+    </style>
+  </head><!--             <span 
+              data-ng-hide="result.isOpen" 
+              class="round label" 
+              data-ng-class="{'alert':result.errorAmount > 0, 'success':result.errorAmount === 0}">
+              {{result.errorAmount}} Errors
+            </span> -->
+  <body data-ng-controller="testResultsController">
+    
+    <main class="row">
+      <div class="columns small-12">
+        <h1 id="page_heading">Student Assessment Results</h1>
+        <section 
+          class="accordion"
+          role="tablist" 
+          multiple 
+          aria-multiselectable="true"
+          aria-labelledby="page_heading"
+          aria-live="polite">
+            
+          <article 
+            class="accordion-panel"
+            role="presentation" 
+            data-ng-repeat="(studentFile, result) in results">
+            <a 
+              href=""
+              class="student-heading" 
+              id="student{{$index}}_studentHeading"
+              role="tab"
+              aria-controls="student{{$index}}_panel"
+              aria-selected="{{!!result.isOpen}}"
+              data-ng-click="result.isOpen = !result.isOpen">
+              {{studentFile}}
+            </a>
+
+            <div 
+              id="student{{$index}}_panel"
+              class="row" 
+              data-ng-show="result.isOpen"
+              aria-labelledby="student{{$index}}_studentHeading"
+              role="tabpanel">
+              <div class="columns medium-4">
+                  <h3 
+                    tabindex="0"
+                    class="section-heading" 
+                    id="student{{$index}}_tagSummary">Tag Summary</h3>            
+                  <dl class="row tag-summary collapse" aria-labelledby="student{{$index}}_tagSummary">
+                    <dt class="columns small-6" data-ng-repeat-start="(tag, quantity) in result.results">
+                      &lt;{{tag}}&gt;
+                    </dt>
+                    <dd class="columns small-6 text-right" data-ng-repeat-end>
+                      <span class="round label" data-ng-class="{'success':quantity > 0, 'alert':quantity === 0}">{{quantity}}</span>
+                    </dd>
+                  </dl>
+              </div>
+              <div class="columns medium-8">
+                <h3 
+                  tabindex="0"
+                  class="section-heading" 
+                  id="student{{$index}}_missingTags">Missing Tags</h3>
+                <ul class="inline-list tag-list" aria-labelledby="student{{$index}}_missingTags">
+                  <li 
+                    data-ng-repeat="(tag, quantity) in result.results"
+                    data-ng-if="quantity===0">&lt;{{tag}}&gt;</li>
+                </ul>
+                <h3 
+                  tabindex="0"
+                  class="section-heading" 
+                  id="student{{$index}}_errorSummary">Error Summary <span class="round label" data-ng-class="{'alert':result.errorAmount > 0, 'success':result.errorAmount === 0}">{{result.errorAmount}} Errors</span></h3>
+                <ul class="list-unstyled" aria-labelledby="student{{$index}}_errorSummary">
+                  <li data-ng-repeat="error in result.errors">
+                    <strong>Line {{error.lastLine}}:</strong> {{error.message}}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

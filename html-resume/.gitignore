@@ -1,0 +1,5 @@
+node_modules
+submissions
+dist
+results.json
+output/results.json
